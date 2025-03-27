@@ -1,6 +1,14 @@
 import { launchStore } from './store';
+import {toast} from "react-toastify"
 
 const API_URL = 'https://localog-tyk.onrender.com/graphql/';
+
+
+
+function showToast(message: string) {
+  toast.error(message);
+}
+
 
 const LAUNCH_QUERY = `
   query ($offset: Int!) {
@@ -33,16 +41,27 @@ export function startPolling() {
         variables: { offset: randomOffset },
       }),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          showToast(`🔥 ${res.status} ${res.statusText}`);
+          return;
+        }
+        return res.json();
+      })
       .then((json) => {
         const data = json?.data?.launchesPast?.[0];
         if (data) {
-          launchStore.set({ data, timestamp }); // store time with data
+          launchStore.set({ data, timestamp });
         }
       })
-      .catch((err) => {
-        console.warn(err.name === 'AbortError' ? '[TIMEOUT]' : `[ERROR] ${err.message}`);
+      .catch((err: any) => {
+        if (err.name === 'AbortError') {
+          showToast('⏱️ Request timed out!');
+        } else {
+          showToast(`❌ ${err.message}`);
+        }
       });
+    
   };
 
   poll();
