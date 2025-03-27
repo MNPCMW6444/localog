@@ -44,3 +44,7 @@ Thumbs.db
 package-lock.json
 
 test-output
+
+.early.coverage
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
