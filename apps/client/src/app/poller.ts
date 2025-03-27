@@ -1,6 +1,6 @@
 import { launchStore } from './store';
 
-const API_URL = 'http://localhost:5001/graphql/';
+const API_URL = 'https://localog-tyk.onrender.com/graphql/';
 
 const LAUNCH_QUERY = `
   query ($offset: Int!) {
