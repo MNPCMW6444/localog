@@ -18,6 +18,8 @@ export interface NetLogEvent {
     statusCode?: number;
     statusText?: string;
     endTime?: string;
+    responseBody?: string;
+
   }
   
   export function parseNetLog(json: any): ParsedRequest[] {
@@ -47,12 +49,28 @@ export interface NetLogEvent {
         requests[id].requestHeaders = event.params?.headers || {};
         requests[id].method = event.params?.method || requests[id].method;
       }
-  
-      if (type === 'HTTP_TRANSACTION_READ_RESPONSE_HEADERS') {
-        requests[id].responseHeaders = event.params?.headers || {};
-        requests[id].statusCode = event.params?.status_code || 200;
-        requests[id].statusText = event.params?.status_line || 'OK';
+
+      if (type === 'URL_REQUEST_JOB_FILTERED_BYTES_READ') {
+        if (!requests[id].responseBody) requests[id].responseBody = '';
+        const data = event.params?.bytes;
+        if (typeof data === 'string') {
+          requests[id].responseBody += data;
+        }
       }
+      
+  
+      if (event.params?.status_code) {
+        requests[id].statusCode = event.params.status_code;
+      }
+      
+      if (event.params?.status_line) {
+        requests[id].statusText = event.params.status_line;
+      }
+      
+      if (event.params?.headers && !requests[id].responseHeaders) {
+        requests[id].responseHeaders = event.params.headers;
+      }
+      
   
       if (type === 'URL_REQUEST' && phase === 'PHASE_END') {
         requests[id].endTime = event.time;

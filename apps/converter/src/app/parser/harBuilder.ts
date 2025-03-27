@@ -23,17 +23,19 @@ export function buildHAR(parsedRequests: ParsedRequest[], timeTickOffset: number
         bodySize: -1
       },
       response: {
-        status: req.statusCode || 200,
-        statusText: req.statusText || 'OK',
+        status: req.statusCode ?? 0,
+statusText: req.statusText ?? 'Unknown',
+
         httpVersion: 'HTTP/1.1',
         headers: toNameValuePairs(req.responseHeaders),
         headersSize: -1,
         bodySize: -1,
         content: {
-          size: -1,
+          size: req.responseBody?.length ?? -1,
           mimeType: req.responseHeaders?.['content-type'] || 'text/plain',
-          text: ''
+          text: req.responseBody || ''
         }
+        
       },
       timings: {
         send: 0,
