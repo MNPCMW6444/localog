@@ -2,7 +2,9 @@
   "name": "@localog/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "build:client": "npx nx build client"
+  },
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.14.5",

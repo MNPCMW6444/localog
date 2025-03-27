@@ -1,52 +1,41 @@
-const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
-const { NxReactWebpackPlugin } = require('@nx/react/webpack-plugin');
-const { join } = require('path');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
   output: {
-    path: join(__dirname, 'dist'),
+    path: path.join(__dirname, 'dist'),
   },
   devServer: {
     port: 4000,
-    historyApiFallback: {
-      index: '/index.html',
-      disableDotRule: true,
-      htmlAcceptHeaders: ['text/html', 'application/xhtml+xml'],
-    },
+    historyApiFallback: true,
   },
-
-  // 🔽 Add this block to suppress source-map warnings
   module: {
     rules: [
       {
-        enforce: 'pre',
-        test: /\.js\.map$/,
-        use: ['source-map-loader'],
-        exclude: /node_modules/, // ✅ ignores node_modules like urql
+        test: /\.(ts|tsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-react', '@babel/preset-typescript'],
+          },
+        },
+      },
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
     ],
   },
-
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+  },
   plugins: [
-    new NxAppWebpackPlugin({
-      tsConfig: './tsconfig.app.json',
-      compiler: 'babel',
-      main: './src/main.tsx',
-      index: './src/index.html',
-      baseHref: '/',
-      assets: ['./src/favicon.ico'],
-      styles: [],
-      outputHashing: process.env['NODE_ENV'] === 'production' ? 'all' : 'none',
-      optimization: process.env['NODE_ENV'] === 'production',
+    new HtmlWebpackPlugin({
+      template: './src/index.html',
     }),
-    new NxReactWebpackPlugin({
-      // svgr: false
-    }),
+    new MiniCssExtractPlugin(),
   ],
-  ignoreWarnings: [
-    {
-      module: /node_modules\/urql/,
-      message: /Failed to parse source map/,
-    },
-  ],
+  entry: './src/main.tsx',
 };
