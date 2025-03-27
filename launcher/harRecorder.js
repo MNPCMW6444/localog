@@ -58,48 +58,63 @@ function createEntry(req, res, body, startTime, endTime) {
 }
 
 exports.startRecording = async function () {
-  const client = await CDP({ port: 9222 });
-  const { Network } = client;
+  console.log('[HAR] Starting HAR recording…');
 
-  await Network.enable();
+  try {
+    const client = await CDP({ port: 9222 });
+    const { Network } = client;
 
-  Network.requestWillBeSent((params) => {
-    requests[params.requestId] = {
-      url: params.request.url,
-      method: params.request.method,
-      headers: params.request.headers,
-      postData: params.request.postData,
-      startTime: Date.now()
-    };
-  });
+    await Network.enable();
+    console.log('[HAR] Connected to CDP!');
 
-  Network.responseReceived(async (params) => {
-    const requestId = params.requestId;
-    const res = {
-      status: params.response.status,
-      statusText: params.response.statusText,
-      headers: params.response.headers
-    };
+    Network.requestWillBeSent((params) => {
+      console.log('[HAR] Request:', params.request.method, params.request.url);
 
-    try {
-      const bodyResult = await Network.getResponseBody({ requestId });
-      const req = requests[requestId];
-      const endTime = Date.now();
-      const entry = createEntry(req, res, bodyResult.body, req.startTime, endTime);
-      harEntries.push(entry);
-    } catch (err) {
-      console.warn('Failed to get body:', err);
-    }
-  });
+      requests[params.requestId] = {
+        url: params.request.url,
+        method: params.request.method,
+        headers: params.request.headers,
+        postData: params.request.postData,
+        startTime: Date.now()
+      };
+    });
 
-  // Auto-save on exit or after timeout
-  const saveInterval = 30000; // 30 seconds — change to your preference
+    Network.responseReceived(async (params) => {
+      console.log('[HAR] Response:', params.response.status, params.response.url);
 
-  setInterval(() => {
-    if (harEntries.length > 0) saveHARToDesktop();
-  }, saveInterval);
+      const requestId = params.requestId;
+      const res = {
+        status: params.response.status,
+        statusText: params.response.statusText,
+        headers: params.response.headers
+      };
 
-  console.log('[HAR Recorder] Recording started.');
+      try {
+        const bodyResult = await Network.getResponseBody({ requestId });
+        const req = requests[requestId];
+        const endTime = Date.now();
+        const entry = createEntry(req, res, bodyResult.body, req.startTime, endTime);
+        harEntries.push(entry);
+        console.log('[HAR] Captured entry:', req.method, req.url);
+      } catch (err) {
+        console.warn('[HAR] Failed to get body:', err.message);
+      }
+    });
+
+    // Save HAR every 30 seconds
+    setInterval(() => {
+      if (harEntries.length > 0) {
+        console.log('[HAR] Writing HAR with', harEntries.length, 'entries');
+        saveHARToDesktop();
+      }
+    }, 30000);
+
+    console.log('[HAR Recorder] Recording started.');
+
+  } catch (err) {
+    alert('❌ Could not connect to CDP: ' + err.message);
+    console.error('[HAR] Could not connect to CDP:', err);
+  }
 };
 
 function saveHARToDesktop() {
