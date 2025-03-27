@@ -34,7 +34,7 @@ console.log(`[NW.js] Logging to: ${logFilePath}`);
 let devWin;
 
 // Open log window
-nw.Window.open('dev-log.html', {
+/* nw.Window.open('dev-log.html', {
   width: 600,
   height: 400,
   position: 'right',
@@ -52,7 +52,7 @@ nw.Window.open('dev-log.html', {
   };
 
   console.log('[NW] Log window initialized');
-});
+}); */
 
 console.log('[HARRecorder] NW.js app started');
 
