@@ -1,13 +1,13 @@
-const { exec } = require('child_process');
-const path = require('path');
+console.log('[HARRecorder] NW.js app started');
 
-nw.Window.open('https://osftclient.netlify.app/', {
-  id: 'mainWindow',
-  new_instance: true
-}, function(win) {
-  win.on('loaded', () => {
-    setTimeout(() => {
-      require('./harRecorder').startRecording(win);
-    }, 2000); // give the page time to load
-  });
-});
+// Show DevTools immediately
+nw.Window.get().showDevTools();
+
+// Keep the app alive
+setInterval(() => {}, 1000);
+
+// Delay HAR recorder start
+setTimeout(() => {
+  console.log('[HARRecorder] Starting HAR recorder...');
+  require('./harRecorder').startRecording();
+}, 3000);

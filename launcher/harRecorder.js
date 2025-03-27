@@ -6,6 +6,9 @@ const os = require('os');
 let requests = {};
 let harEntries = [];
 
+console.log('[HAR] Recording started…');
+
+
 function toNameValuePairs(headers) {
   return Object.entries(headers).map(([name, value]) => ({ name, value: String(value) }));
 }
@@ -115,7 +118,9 @@ function saveHARToDesktop() {
   try {
     fs.writeFileSync(fullPath, JSON.stringify(har, null, 2), 'utf-8');
     console.log(`[HAR Recorder] HAR saved to ${fullPath}`);
+    alert(`HAR saved to:\n${fullPath}`);
   } catch (err) {
-    console.error('Failed to save HAR:', err);
+    console.error('❌ Failed to save HAR:', err);
+    alert('❌ HAR save failed: ' + err.message);
   }
 }
