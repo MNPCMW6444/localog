@@ -12,10 +12,12 @@
     "@emotion/babel-plugin": "11.11.0",
     "@eslint/js": "^9.8.0",
     "@nx/devkit": "20.6.4",
+    "@nx/esbuild": "^20.6.4",
     "@nx/eslint": "20.6.4",
     "@nx/eslint-plugin": "20.6.4",
     "@nx/jest": "20.6.4",
     "@nx/js": "20.6.4",
+    "@nx/node": "^20.6.4",
     "@nx/playwright": "20.6.4",
     "@nx/react": "^20.6.4",
     "@nx/vite": "20.6.4",
@@ -37,6 +39,7 @@
     "@vitejs/plugin-react": "^4.2.0",
     "@vitest/ui": "^3.0.0",
     "babel-jest": "^29.7.0",
+    "esbuild": "^0.19.2",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "2.31.0",
@@ -62,14 +65,17 @@
   },
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/*",
+    "tyk"
   ],
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "11.11.0",
+    "cors": "^2.8.5",
     "graphql": "^16.10.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "undici": "^6.21.2",
     "urql": "^4.2.2"
   }
 }

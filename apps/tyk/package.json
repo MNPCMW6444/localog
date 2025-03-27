@@ -1,0 +1,65 @@
+{
+  "name": "@localog/tyk",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "@nx/esbuild:esbuild",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "defaultConfiguration": "production",
+        "options": {
+          "platform": "node",
+          "outputPath": "apps/tyk/dist",
+          "format": [
+            "cjs"
+          ],
+          "bundle": false,
+          "main": "apps/tyk/src/main.ts",
+          "tsConfig": "apps/tyk/tsconfig.app.json",
+          "assets": [
+            "apps/tyk/src/assets"
+          ],
+          "esbuildOptions": {
+            "sourcemap": true,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        },
+        "configurations": {
+          "development": {},
+          "production": {
+            "esbuildOptions": {
+              "sourcemap": false,
+              "outExtension": {
+                ".js": ".js"
+              }
+            }
+          }
+        }
+      },
+      "serve": {
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "@localog/tyk:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "@localog/tyk:build:development"
+          },
+          "production": {
+            "buildTarget": "@localog/tyk:build:production"
+          }
+        }
+      }
+    }
+  }
+}

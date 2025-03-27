@@ -33,31 +33,51 @@ export interface NetLogEvent {
         requests[id] = {
           id,
           url: '',
-          method: '',
-          startTime: event.time,
+          method: 'GET',
+          startTime: event.time
         };
       }
   
+      // Standard events (keep if present)
       if (type === 'URL_REQUEST' && phase === 'PHASE_BEGIN') {
-        requests[id].url = event.params.url || '';
+        requests[id].url = event.params?.url || requests[id].url;
       }
   
       if (type === 'HTTP_TRANSACTION_SEND_REQUEST_HEADERS') {
-        requests[id].requestHeaders = event.params.headers;
-        requests[id].method = event.params?.method || 'GET';
+        requests[id].requestHeaders = event.params?.headers || {};
+        requests[id].method = event.params?.method || requests[id].method;
       }
   
       if (type === 'HTTP_TRANSACTION_READ_RESPONSE_HEADERS') {
-        requests[id].responseHeaders = event.params.headers || {};
-        requests[id].statusCode = event.params.status_code || 200;
-        requests[id].statusText = event.params.status_line || 'OK';
+        requests[id].responseHeaders = event.params?.headers || {};
+        requests[id].statusCode = event.params?.status_code || 200;
+        requests[id].statusText = event.params?.status_line || 'OK';
       }
   
       if (type === 'URL_REQUEST' && phase === 'PHASE_END') {
+        requests[id].endTime = event.time;
+      }
+  
+      // New fallback: CORS_REQUEST (570)
+      if (type === 570 && event.params?.url) {
+        requests[id].url = event.params.url;
+        requests[id].method = event.params.method || 'GET';
+        requests[id].startTime = event.time;
+      }
+  
+      // Fallback: URL_REQUEST_START_JOB (123)
+      if (type === 123 && event.params?.url) {
+        requests[id].url = event.params.url;
+        requests[id].method = event.params.method || 'GET';
+      }
+  
+      // End fallback: use NETWORK_DELEGATE_BEFORE_START_TRANSACTION (126)
+      if (type === 126 && phase === 2) {
         requests[id].endTime = event.time;
       }
     }
   
     return Object.values(requests).filter(r => r.url);
   }
+  
   

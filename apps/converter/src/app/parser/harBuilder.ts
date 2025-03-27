@@ -1,12 +1,14 @@
 // src/parser/harBuilder.ts
 import { ParsedRequest } from './netlogParser';
 
-export function buildHAR(parsedRequests: ParsedRequest[]): any {
+export function buildHAR(parsedRequests: ParsedRequest[], timeTickOffset: number): any {
   const entries = parsedRequests.map(req => {
-    const startedDateTime = new Date(req.startTime).toISOString();
-    const totalTime = req.endTime
-      ? new Date(req.endTime).getTime() - new Date(req.startTime).getTime()
-      : 0;
+    const startMs = Number(req.startTime) + timeTickOffset;
+    const endMs = req.endTime ? Number(req.endTime) + timeTickOffset : startMs;
+    
+    const startedDateTime = new Date(startMs).toISOString();
+    const totalTime = endMs - startMs;
+    
 
     return {
       startedDateTime,

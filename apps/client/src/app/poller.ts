@@ -1,6 +1,6 @@
 import { launchStore } from './store';
 
-const API_URL = 'https://spacex-production.up.railway.app/';
+const API_URL = 'http://localhost:5001/graphql/';
 
 const LAUNCH_QUERY = `
   query ($offset: Int!) {
