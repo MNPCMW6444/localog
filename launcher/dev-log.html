@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NW.js Logs</title>
+  <style>body { font-family: monospace; }</style>
+</head>
+<body>
+  <h3>NW.js Console Log</h3>
+  <pre id="log" style="white-space: pre-wrap"></pre>
+  <script>
+    const { ipcRenderer } = require('nw.gui');
+
+    window.log = function(msg) {
+      const el = document.getElementById('log');
+      el.textContent += msg + '\\n';
+    };
+  </script>
+</body>
+</html>

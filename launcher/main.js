@@ -3,6 +3,32 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+
+let devWin;
+
+nw.Window.open('dev-log.html', {
+  width: 600,
+  height: 400,
+  position: 'right',
+  focus: false
+}, function(w) {
+  devWin = w;
+
+  // Monkey patch console.log
+  const oldLog = console.log;
+  console.log = function (...args) {
+    oldLog.apply(console, args);
+    const msg = args.map(String).join(' ');
+    if (devWin && devWin.window && devWin.window.log) {
+      devWin.window.log(msg);
+    }
+  };
+
+  console.log('[NW] Log window initialized');
+});
+
+
+
 // Show DevTools immediately
 nw.Window.get().showDevTools();
 

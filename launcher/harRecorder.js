@@ -6,7 +6,8 @@ const os = require('os');
 let requests = {};
 let harEntries = [];
 
-console.log('[HAR] Recording started…');
+console.log('[HAR] CDP starting...');
+console.error('[HAR] Could not connect to CDP:', err.message);
 
 
 function toNameValuePairs(headers) {
