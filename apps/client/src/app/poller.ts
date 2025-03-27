@@ -14,50 +14,37 @@ const LAUNCH_QUERY = `
   }
 `;
 
-
 export function startPolling() {
   const poll = () => {
+    const randomOffset = Math.floor(Math.random() * 150);
+    const timestamp = Date.now(); // mark request time
+
     const controller = new AbortController();
-    setTimeout(() => controller.abort(), 10000); // 10s timeout
+    setTimeout(() => controller.abort(), 10000);
 
-   
-    
-    const randomOffset = Math.floor(Math.random() * 150); // try 150-200 depending on how many launches you want to cover
-
-fetch(API_URL, {
-  method: 'POST',
-  signal: controller.signal,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    query: LAUNCH_QUERY,
-    variables: {
-      offset: randomOffset,
-    },
-  }),
-})
+    fetch(API_URL, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: LAUNCH_QUERY,
+        variables: { offset: randomOffset },
+      }),
+    })
       .then((res) => res.json())
       .then((json) => {
         const data = json?.data?.launchesPast?.[0];
         if (data) {
-          launchStore.set(data);
+          launchStore.set({ data, timestamp }); // store time with data
         }
       })
       .catch((err) => {
-        console.warn(
-          err.name === 'AbortError'
-            ? '[TIMEOUT] Request took too long'
-            : `[ERROR] ${err.message}`
-        );
+        console.warn(err.name === 'AbortError' ? '[TIMEOUT]' : `[ERROR] ${err.message}`);
       });
   };
 
-  // fire immediately
   poll();
-
-  // fire every 2s, no matter what
-  setInterval(() => {
-    poll();
-  }, 2000);
+  setInterval(poll, 2000);
 }

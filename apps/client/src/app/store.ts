@@ -1,4 +1,4 @@
-let currentValue: any = null;
+let currentValue: { data: any; timestamp: number } | null = null;
 const listeners = new Set<() => void>();
 
 export const launchStore = {
