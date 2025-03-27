@@ -3,10 +3,10 @@
   "main": "https://osftclient.netlify.app/",
   "node-main": "main.js",
   "window": {
-    "show": true,
-    "toolbar": true,
     "width": 1280,
-    "height": 800
+    "height": 800,
+    "show": true,
+    "toolbar": true
   },
   "chromium-args": "--remote-debugging-port=9222"
 }
