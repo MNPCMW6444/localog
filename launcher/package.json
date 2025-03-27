@@ -1,0 +1,14 @@
+{
+    "name": "HARRecorder",
+    "main": "main.js",
+    "window": {
+        "title": "HAR Recorder",
+        "width": 1280,
+        "height": 800,
+        "toolbar": false
+    },
+    "chromium-args": "--remote-debugging-port=9222 --no-default-browser-check --no-first-run",
+    "dependencies": {
+        "chrome-remote-interface": "^0.33.3"
+    }
+}
