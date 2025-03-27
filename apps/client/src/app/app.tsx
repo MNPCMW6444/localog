@@ -1,6 +1,7 @@
 // App.tsx
 import { Launch } from './Launch.tsx';
 import { startPolling } from './poller';
+import React from "react"
 
 startPolling(); // ⏱️ starts immediately
 
