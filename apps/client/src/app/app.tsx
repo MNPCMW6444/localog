@@ -1,4 +1,3 @@
-// App.tsx
 import { InteractionTester } from './InteractionTester';
 import { Launch } from './Launch';
 import { startPolling } from './poller';
@@ -31,50 +30,53 @@ export default function App() {
       const level = levels[randomInt(0, levels.length - 1)] as keyof Console;
       const msg = messages[randomInt(0, messages.length - 1)];
       console[level](`[APP LOG] ${msg}`);
-      const nextDelay = randomInt(3000, 6000); // 3–6s
+      const nextDelay = randomInt(3000, 6000);
       setTimeout(emitRandomLog, nextDelay);
     }
 
-    emitRandomLog(); // Start it once when component mounts
+    emitRandomLog();
   }, []);
 
   useEffect(() => {
-    // 🔁 CPU Load: lower to ~80%
+    // 🔁 CPU Load (~80%) with smoother scheduling
     let cpuActive = true;
     function cpuBurn() {
       const now = performance.now();
       while (performance.now() - now < 6) {
         Math.atan(Math.random() * Math.random());
-      }      
-      if (cpuActive) requestAnimationFrame(cpuBurn);
+      }
+      if (cpuActive) setTimeout(() => requestAnimationFrame(cpuBurn), 0);
     }
     cpuBurn();
-  
+
+    // 🧠 Heap memory pressure
     const memoryChunks: any[] = [];
     const maxHeapMB = 500;
     const chunkSize = 1 * 1024 * 1024; // 1MB
     let seed = 0;
-    
+
     const memoryInterval = setInterval(() => {
-      const uniqueChunk = new Array(chunkSize).fill(String.fromCharCode(65 + (seed++ % 26))).join('');
-      memoryChunks.push({ data: uniqueChunk, nested: [uniqueChunk, { x: uniqueChunk }] });
-    
+      const str = Array(chunkSize)
+        .fill(0)
+        .map((_, i) => String.fromCharCode(65 + ((i + seed) % 26)))
+        .join('');
+      memoryChunks.push({ a: str, b: [str, { deep: str }] });
+      seed++;
       if (memoryChunks.length * chunkSize > maxHeapMB * 1024 * 1024) {
         memoryChunks.shift();
       }
-    }, 50);
-    
-          
+    }, 80); // Slightly slower to stagger
+
     // 🌐 Network flood
     const ping = async () => {
       try {
         await fetch('https://jsonplaceholder.typicode.com/posts');
       } catch {}
-      setTimeout(ping, 200);
+      setTimeout(ping, 180); // slight stagger from memory
     };
     ping();
-  
-    // 🧱 DOM Container Mount (still targeting 300k–400k nodes max)
+
+    // 🧱 DOM churn
     const container = document.createElement('div');
     container.style.width = '100%';
     container.style.marginTop = '2rem';
@@ -82,17 +84,18 @@ export default function App() {
     container.style.gridTemplateColumns = 'repeat(100, 1fr)';
     container.style.gap = '1px';
     document.getElementById('asd')?.appendChild(container);
-  
+
     const maxNodes = 400000;
     const minNodes = 300000;
-    
+
     const domInterval = setInterval(() => {
       const current = container.childNodes.length;
       const target = Math.floor(Math.random() * (maxNodes - minNodes)) + minNodes;
-    
+      const diff = Math.abs(current - target);
+
       if (current < target) {
         const fragment = document.createDocumentFragment();
-        for (let i = 0; i < target - current; i++) {
+        for (let i = 0; i < diff; i++) {
           const el = document.createElement('div');
           el.style.width = '2px';
           el.style.height = '2px';
@@ -101,19 +104,18 @@ export default function App() {
         }
         container.appendChild(fragment);
       } else if (current > target) {
-        const toRemove = Math.min(current - target, 10000);
+        const toRemove = Math.min(diff, 10000);
         for (let i = 0; i < toRemove; i++) {
           container.removeChild(container.lastChild!);
         }
       }
-    }, 300);
-            
-  
-    // 🎨 Repaint pulse
+    }, 330); // staggered from memory/network
+
+    // 🎨 Paint pulse
     const paintInterval = setInterval(() => {
       container.style.outline = `1px solid hsl(${Math.random() * 360}, 100%, 50%)`;
     }, 1000);
-  
+
     return () => {
       cpuActive = false;
       clearInterval(memoryInterval);
@@ -122,12 +124,12 @@ export default function App() {
       container.remove();
     };
   }, []);
-  
+
   return (
     <>
       <ToastContainer />
       <div className="flex flex-col justify-center items-center h-screen bg-gray-900 text-white p-6">
-        <h1 className="text-3xl font-bold mb-6">🚀 Random SpaceX Launch</h1>{' '}
+        <h1 className="text-3xl font-bold mb-6">🚀 Random SpaceX Launch</h1>
         <InteractionTester />
         <Launch />
       </div>
